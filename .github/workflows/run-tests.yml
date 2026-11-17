@@ -1,8 +1,29 @@
 name: Run pytest unit tests
 
-# Run the tests automatically whenever changes are pushed to the repository
 on:
+  # (B) Run on pushes to main only, not on every push to other branches
   push:
+    branches: [main]
+    # (A) Only run when relevant code changes
+    paths:
+      - "src/**"
+      - "tests/**"
+      - ".github/workflows/run-tests.yml"
+
+  # (B) Run on pull requests into main, so code is tested before it is merged
+  pull_request:
+    branches: [main]
+    # (A) Only run when relevant code changes
+    paths:
+      - "src/**"
+      - "tests/**"
+      - ".github/workflows/run-tests.yml"
+
+# (C) If a newer run starts on the same branch or pull request,
+#     cancel the older run that is still in progress
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
